@@ -1,5 +1,6 @@
 FactoryGirl.define do
   factory :zombie do
-    name "MyString"
+    name "Ash"
+    weapon "Sword"
   end
 end

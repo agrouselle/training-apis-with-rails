@@ -1,30 +1,29 @@
 Rails.application.routes.draw do
-  resources :zombies
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 
-  resources :zombies, only:[:index, :show]
-  resources :humans, except:[:destroy, :edit, :update]
+  # Keeping our API under its own subdomain allows load balancing traffic at DNS level
+  # Much faster than at application level
+  # Very useful when using the same Rails code base to serve both web site and api
+  # Using namespace to keep web controllers separate from API controllers
+  # Specifying path to remove /api from URLs
+  # Watch out, defining a default format override whatever format sent in the Accept header of a request
+  namespace :api, path: nil, constraints: {subdomain: 'api'} do
+    resources :zombies
+    # resources :vampires
+    # resources :werewolves
+  end
+
+  resources :zombies  #, only: [:index, :show]
+  resources :humans   #, except: [:destroy, :edit, :update]
   resources :pages
 
   with_options only: :index do |list_only|
     list_only.resources :medical_kits
     list_only.resources :weapons
-  end
-
-  # Keeping our API under its own subdomain allows load balancing traffic at DNS level
-  # Much faster than at application level
-  # Very useful when using the same Rails code base to serve both web site and api
-  constraints subdomain: 'api' do
-    # Using namespace to keep web controllers separate from API controllers
-    # Specifying path to remove /api from URLs
-    namespace :api, path:'/' do
-      resources :vampires
-      resources :werewolves
-    end
   end
 
   # Example of regular route:
