@@ -45,24 +45,12 @@ module API
           expect(response.content_type).to eq(Mime::XML)
         end
       end
-
-      # context "when requesting in English" do
-      #   it "returns zombies in English" do
-      #     get api_zombies_url, {}, {''}
-      #   end
-      # end
-      #
-      # context "when requesting in French" do
-      #   it "returns zombies in French" do
-      #
-      #   end
-      # end
     end
 
     context "GET /zombies/:id" do
-      it "returns the requested zombie" do
-        z = FactoryGirl.create(:zombie)
+      let(:z){ FactoryGirl.create(:zombie) }
 
+      it "returns the requested zombie" do
         get api_zombie_url(z.id)
         expect(response).to have_http_status(200)
         expect(response.body).to be_present
@@ -70,11 +58,27 @@ module API
         zombie_response = json(response.body)
         expect(zombie_response[:name]).to eq(z.name)
       end
+
+      context "when requesting in English" do
+        it "returns the zombie in English" do
+          get api_zombie_url(z.id), {}, {'Accept' => Mime::JSON, 'Accept-Language' => 'en'}
+          expect(response).to have_http_status(200)
+
+          zombie = json(response.body)
+          expect(zombie[:message]).to eq("Watch out for #{zombie[:name]}!")
+        end
+      end
+
+      context "when requesting in French" do
+        it "returns the zombie in French" do
+          get api_zombie_url(z.id), {}, {'Accept' => Mime::JSON, 'Accept-Language' => 'fr'}
+          expect(response).to have_http_status(200)
+
+          zombie = json(response.body)
+          expect(zombie[:message]).to eq("Attention à #{zombie[:name]} !")
+        end
+      end
     end
-
-
-
-
   end
 end
 
