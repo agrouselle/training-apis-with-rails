@@ -15,6 +15,20 @@ module API
       end
     end
 
+    def update
+      episode = Episode.find(params[:id])
+      if episode.update(episode_params)
+        render json: episode, status: 200
+      else
+        render json: episode.errors, status: 422
+      end
+    end
+
+    def destroy
+      Episode.destroy(params[:id])
+      head 204
+    end
+
     private
 
     def episode_params
