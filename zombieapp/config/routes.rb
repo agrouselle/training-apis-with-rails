@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   # Watch out, defining a default format override whatever format sent in the Accept header of a request
   namespace :api, path: nil, constraints: {subdomain: 'api'} do
     resources :zombies
+    resources :episodes
     # resources :vampires
     # resources :werewolves
   end
