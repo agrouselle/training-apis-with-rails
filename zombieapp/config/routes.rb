@@ -1,3 +1,5 @@
+require 'constraints/api_version'
+
 Rails.application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
@@ -14,8 +16,29 @@ Rails.application.routes.draw do
   namespace :api, path: nil, constraints: {subdomain: 'api'} do
     resources :zombies
     resources :episodes
-    # resources :vampires
-    # resources :werewolves
+
+    # Versioning using URI
+    namespace :v1 do
+      resources :zombies
+      resources :episodes
+    end
+
+    namespace :v2 do
+      resources :zombies
+      resources :episodes
+    end
+
+
+    # Versioning using Accept header
+    scope defaults: {format: :json} do
+      scope module: :v1, constraints: Constraints::ApiVersion.new('v1') do
+        resources :vampires
+      end
+
+      scope module: :v2, constraints: Constraints::ApiVersion.new('v2', true) do
+        resources :vampires
+      end
+    end
   end
 
   resources :zombies  #, only: [:index, :show]

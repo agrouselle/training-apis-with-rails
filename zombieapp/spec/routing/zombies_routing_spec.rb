@@ -36,4 +36,11 @@ RSpec.describe ZombiesController, type: :routing do
     end
 
   end
+
+  describe "routes versions" do
+    it "routes to #index" do
+      expect(:get => 'http://api.example.com/v1/zombies').to route_to("api/v1/zombies#index", subdomain:'api')
+      expect(:get => 'http://api.example.com/v2/zombies').to route_to("api/v2/zombies#index", subdomain:'api')
+    end
+  end
 end
