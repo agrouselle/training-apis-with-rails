@@ -60,5 +60,28 @@ module API
         expect(response).to have_http_status(204)
       end
     end
+
+    context "GET /episodes" do
+      before do
+        @user = User.create!(username: 'foo', password:'secret')
+      end
+
+      context "with valid credentials" do
+        it "gets the list of episodes" do
+          get "/episodes", {}, {
+              "Authorization" => encode_credentials(@user.username, @user.password),
+              "Accept" => Mime::JSON
+          }
+          expect(response).to have_http_status(200)
+        end
+      end
+
+      context "with missing credentials" do
+        it "denies the access to the episodes" do
+          get "/episodes", {}, {"Accept" => Mime::JSON}
+          expect(response).to have_http_status(401)
+        end
+      end
+    end
   end
 end
