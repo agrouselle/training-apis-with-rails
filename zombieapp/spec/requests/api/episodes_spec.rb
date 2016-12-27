@@ -62,14 +62,12 @@ module API
     end
 
     context "GET /episodes" do
-      before do
-        @user = User.create!(username: 'foo', password:'secret')
-      end
+      let(:user) { User.create!(username: 'foo', password:'secret') }
 
       context "with valid credentials" do
         it "gets the list of episodes" do
           get "/episodes", {}, {
-              "Authorization" => encode_credentials(@user.username, @user.password),
+              "Authorization" => encode_credentials(user.username, user.password),
               "Accept" => Mime::JSON
           }
           expect(response).to have_http_status(200)
@@ -80,6 +78,32 @@ module API
         it "denies the access to the episodes" do
           get "/episodes", {}, {"Accept" => Mime::JSON}
           expect(response).to have_http_status(401)
+        end
+      end
+    end
+
+    context "GET /episodes/:id" do
+      let(:episode){ Episode.create!(title: 'First title') }
+      let(:user) { User.create! }
+
+      context "with a valid token" do
+        it "gets the episode" do
+          get "/episodes/#{episode.id}", {}, {
+              'Authorization' => token_header(user.auth_token),
+              'Accept' => Mime::JSON
+          }
+
+          expect(response).to have_http_status(200)
+          expect(response.content_type).to eq(Mime::JSON)
+        end
+      end
+
+      context "with a bad token" do
+        it "denies the access to the episode" do
+          get "/episodes/#{episode.id}", {}, {'Accept' => Mime::JSON}
+
+          expect(response).to have_http_status(401)
+          expect(response.content_type).to eq(Mime::JSON)
         end
       end
     end

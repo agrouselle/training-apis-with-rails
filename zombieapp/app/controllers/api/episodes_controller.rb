@@ -1,11 +1,17 @@
 module API
   class EpisodesController < ApplicationController
     before_action :authenticate, only: [:index]
+    before_action :authenticate_with_token, only: [:show]
 
     # Example of curl command to get the index action
     # curl -I -H "Accept: application/json" -u "foo:secret" http://api.localhost.com:3000/episodes
     def index
       render json: Episode.all, status: 200
+    end
+
+    def show
+      episode = Episode.find(params[:id])
+      render json: episode, status: 200
     end
 
     def create
@@ -63,6 +69,21 @@ module API
       respond_to do |format|
         format.json { render json: 'Bad Credentials', status: 401}
         format.xml { render xml: 'Bad Credentials', status: 401}
+      end
+    end
+
+    def authenticate_with_token
+      # Halts the request and responds with text/html content type
+      # authenticate_or_request_with_http_token('Episodes') do |token, options|
+      #   User.authenticate_with_token(token)
+      # end
+
+      authenticate_with_token_basic_auth || render_unauthorized
+    end
+
+    def authenticate_with_token_basic_auth
+      authenticate_with_http_token do |token, options|
+        User.authenticate_with_token(token)
       end
     end
 
